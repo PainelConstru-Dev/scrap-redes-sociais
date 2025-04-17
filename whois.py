@@ -38,8 +38,6 @@ except Exception as e:
 last_email = get_last_email()
 filtered_df = df[df['numero'] > last_email]
 
-# Obter lista de emails e números correspondentes
-# Aqui usamos zip para iterar sobre ambos simultaneamente
 email_number_pairs = filtered_df[['correio_eletronico', 'numero']].dropna().values.tolist()
 
 if not email_number_pairs:

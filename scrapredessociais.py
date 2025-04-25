@@ -1,3 +1,4 @@
+import certifi
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -15,14 +16,14 @@ def encontrar_redes_sociais(company):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        print(f"Procurando redes sociais para {company['razao_social']}")
-        print(f"Email: {company['correio_eletronico']}")
         if '@' in company['correio_eletronico']:
             domain = company['correio_eletronico'].split('@')[1]
         else:
             domain = company['correio_eletronico']
         url = f"https://{domain}"
-        response = requests.get(url, headers=headers, timeout=10, verify=False)
+        print(f"URL: {url}")
+        response = requests.get(url, headers=headers, timeout=10, verify=certifi.where())
+        
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         page_text = soup.get_text()
@@ -69,13 +70,17 @@ def encontrar_redes_sociais(company):
             ceps_no_texto = re.findall(r'\b\d{5}-?\d{3}\b', page_text)
             for cep in ceps_no_texto:
                 contact_types['cep'].add(cep)
-        
-        for type in contact_types:
-            for contact in contact_types[type]:
-                company['tipo_contato'] = type
-                company['contato'] = contact
-                save_redes_sociais_to_csv(company)
-        return 
+        file_path = 'data/TAB2.csv'
+        file_exists = os.path.exists(file_path) and os.path.getsize(file_path) > 0
+        with open(file_path, mode="a", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            if not file_exists:
+                writer.writerow(["cnpj_basico", "cnpj_dv", "cnpj_ordem", "razao_social", "correio_eletronico", "tipo_contato", "contato", "numero"])
+
+            for type in contact_types:
+                for contact in contact_types[type]:
+                    writer.writerow([company['cnpj_basico'], company['cnpj_dv'], company['cnpj_ordem'], company['razao_social'], company['correio_eletronico'], type, contact, company['numero']])
+            return 
     
     except Exception as e:
         print(f"Erro ao processar {company['correio_eletronico']}: {str(e)}")
@@ -104,6 +109,33 @@ def load_info_from_file(file_path):
     companies.sort(key=lambda x: int(x['numero']), reverse=True)
     return companies
 
+def save_load(file_path):
+    # Lendo o arquivo CSV
+    search_info = pandas.read_csv(file_path, encoding='utf-8')
+    
+    companies = []
+    for _, row in search_info.iterrows():  # Note o uso de _ para o índice que não será usado
+        company = {
+            'cnpj_basico': row["cnpj_basico"],
+            'cnpj_dv': row["cnpj_dv"],
+            'cnpj_ordem': row["cnpj_ordem"],
+            'razao_social': row["razao_social"],
+            'correio_eletronico': row["correio_eletronico"],
+            'tipo_contato': row["tipo_contato"],
+            'contato': row["contato"],
+            'numero': row["numero"]
+        }
+        companies.append(company)
+    
+    # Invertendo a lista
+    companies = companies[::-1]
+    
+    # Escrevendo de volta no arquivo
+    with open(file_path, "w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=companies[0].keys())
+        writer.writeheader()
+        writer.writerows(companies)
+        
 def save_redes_sociais_to_csv(empresa):
     output = 'data/TAB2.csv'
     os.makedirs(os.path.dirname(output), exist_ok=True)
@@ -127,7 +159,7 @@ def save_redes_sociais_to_csv(empresa):
         print("Data saved")
 
 def get_last_company():
-    output = 'BANCO/TAB2.csv'
+    output = 'data/TAB2.csv'
     if os.path.exists(output) and os.path.getsize(output) > 0:
         with open(output, "r", encoding="utf-8") as csv_file:
             try:
@@ -159,11 +191,9 @@ def add_number_to_companies():
         writer.writerows(data)
 
 def main():
-    #add_number_to_companies()
     
     companies = load_info_from_file("TAB1.csv")
-    
-    
+        
     for company in companies:
         print(f"\nRedes sociais para {company['razao_social']}:")
         encontrar_redes_sociais(company)

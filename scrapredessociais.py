@@ -76,7 +76,6 @@ def encontrar_redes_sociais(company):
             writer = csv.writer(file)
             if not file_exists:
                 writer.writerow(["cnpj_basico", "cnpj_dv", "cnpj_ordem", "razao_social", "correio_eletronico", "tipo_contato", "contato", "numero"])
-
             for type in contact_types:
                 for contact in contact_types[type]:
                     writer.writerow([company['cnpj_basico'], company['cnpj_dv'], company['cnpj_ordem'], company['razao_social'], company['correio_eletronico'], type, contact, company['numero']])
@@ -92,7 +91,7 @@ def load_info_from_file(file_path):
     last_company = get_last_company()
     companies = [] 
     for _, company in search_info.iterrows():
-        if int(company["numero"]) <= last_company:
+        if int(company["numero"]) >= last_company:
             continue
         else:
             company = {
@@ -110,11 +109,10 @@ def load_info_from_file(file_path):
     return companies
 
 def save_load(file_path):
-    # Lendo o arquivo CSV
     search_info = pandas.read_csv(file_path, encoding='utf-8')
     
     companies = []
-    for _, row in search_info.iterrows():  # Note o uso de _ para o índice que não será usado
+    for _, row in search_info.iterrows():
         company = {
             'cnpj_basico': row["cnpj_basico"],
             'cnpj_dv': row["cnpj_dv"],
@@ -127,10 +125,8 @@ def save_load(file_path):
         }
         companies.append(company)
     
-    # Invertendo a lista
     companies = companies[::-1]
     
-    # Escrevendo de volta no arquivo
     with open(file_path, "w", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=companies[0].keys())
         writer.writeheader()

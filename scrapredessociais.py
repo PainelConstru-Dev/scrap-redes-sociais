@@ -80,8 +80,7 @@ def encontrar_redes_sociais(company):
     except Exception as e:
         print(f"Erro ao processar {company['correio_eletronico']}: {str(e)}")
         return company
-
-    
+   
 def load_info_from_file(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         search_info = pandas.read_csv(file)
@@ -102,10 +101,11 @@ def load_info_from_file(file_path):
                 'numero' : company["numero"]
             }
             companies.append(company)
+    companies.sort(key=lambda x: int(x['numero']), reverse=True)
     return companies
 
 def save_redes_sociais_to_csv(empresa):
-    output = 'BANCO/TAB2.csv'
+    output = 'data/TAB2.csv'
     os.makedirs(os.path.dirname(output), exist_ok=True)
     existing_data = []
     if os.path.exists(output) and os.path.getsize(output) > 0:

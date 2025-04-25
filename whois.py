@@ -11,7 +11,7 @@ import os
 driver = webdriver.Firefox()
 
 def get_last_email():
-    output = 'TAB1_WHO.csv'
+    output = 'data/TAB1_WHO.csv'
     if os.path.exists(output) and os.path.getsize(output) > 0:
         with open(output, "r", encoding="utf-8") as csv_file:
             try:
@@ -26,7 +26,7 @@ def get_last_email():
         return 0
 
 input_csv = "TAB1.csv" 
-output_csv = "TAB1_WHO.csv"
+output_csv = "data/TAB1_WHO.csv"
 
 try:
     df = pd.read_csv(input_csv)

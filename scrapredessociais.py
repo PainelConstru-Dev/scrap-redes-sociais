@@ -1,3 +1,4 @@
+import certifi
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -20,7 +21,9 @@ def encontrar_redes_sociais(company):
         else:
             domain = company['correio_eletronico']
         url = f"https://{domain}"
-        response = requests.get(url, headers=headers, timeout=10, verify=False)
+        print(f"URL: {url}")
+        response = requests.get(url, headers=headers, timeout=10, verify=certifi.where())
+        
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         page_text = soup.get_text()

@@ -70,7 +70,7 @@ def encontrar_redes_sociais(company):
             ceps_no_texto = re.findall(r'\b\d{5}-?\d{3}\b', page_text)
             for cep in ceps_no_texto:
                 contact_types['cep'].add(cep)
-        file_path = 'data/TAB2.csv'
+        file_path = 'data/TAB1_Sites.csv'
         file_exists = os.path.exists(file_path) and os.path.getsize(file_path) > 0
         with open(file_path, mode="a", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
@@ -137,7 +137,7 @@ def save_load(file_path):
         writer.writerows(companies)
         
 def save_redes_sociais_to_csv(empresa):
-    output = 'data/TAB2.csv'
+    output = 'data/TAB1_Sites.csv'
     os.makedirs(os.path.dirname(output), exist_ok=True)
     existing_data = []
     if os.path.exists(output) and os.path.getsize(output) > 0:
@@ -159,7 +159,7 @@ def save_redes_sociais_to_csv(empresa):
         print("Data saved")
 
 def get_last_company():
-    output = 'data/TAB2.csv'
+    output = 'data/TAB1_Sites.csv'
     if os.path.exists(output) and os.path.getsize(output) > 0:
         with open(output, "r", encoding="utf-8") as csv_file:
             try:
